@@ -5,6 +5,7 @@ from easyAI.Player import Human_Player
 from copy import deepcopy
 from easyAI.AI.DictTT import DictTT
 from easyAI.AI.Hashes import JSWHashTT
+from easyAI.AI import MTDbi
 
 class Chopsticks( TwoPlayersGame ):
     """ 
@@ -82,9 +83,9 @@ class Chopsticks( TwoPlayersGame ):
             print("Player %d: " %(i+1)),
             for j in range(self.numhands):
                 if self.hands[i][j] > 0:
-                    print('|'*self.hands[i][j] + '\t'),
+                    print('|'*self.hands[i][j] + '\t',)
                 else:
-                    print('x\t'),
+                    print('x\t',)
             print('')
                  
     def scoring(self):
@@ -92,7 +93,7 @@ class Chopsticks( TwoPlayersGame ):
             Very simple heuristic counting 'alive' hands
         """
         if self.lose():
-            return -100
+            return 0
         if self.win():
             return 100
         alive = [0] * 2
@@ -120,15 +121,15 @@ class Chopsticks( TwoPlayersGame ):
         return hands_min == 1 and hands_max == 1
     
 if __name__ == "__main__":
-    from easyAI import Negamax, AI_Player, SSS, DUAL
+    from easyAI import Negamax, AI_Player, SSS, DUAL, MTDbi, MTDf, MTDstep
     from easyAI.AI.TT import TT
-    ai_algo_neg = Negamax(4)
-    ai_algo_sss = SSS(4)
-    dict_tt = DictTT(32, JSWHashTT())
-    ai_algo_dual = DUAL(4, tt=TT(dict_tt))
-    Chopsticks( [AI_Player(ai_algo_neg),AI_Player(ai_algo_dual)]).play()  #first player never wins
     
-    print '-'*10
-    print 'Statistics of custom dictionary:'
-    print 'Calls of hash: ', dict_tt.num_calls
-    print 'Collisions: ', dict_tt.num_collisions
+    dict_tt = DictTT(32)
+    ai_algo_sss = SSS(6, tt=TT(dict_tt)) # SSS algorithm
+    ai_algo_neg = Negamax(6, tt=TT(dict_tt))  # Negamax algorithm
+    ai_algo_bi = MTDbi(6, tt=TT(dict_tt))  # MTDbi algorithm
+    ai_algo_f = MTDf(5, tt=TT(dict_tt))  # MTDf algorithm
+    ai_algo_step = MTDstep(5, tt=TT(dict_tt))  # MTDstep algorithm
+    ai_algo_dual = DUAL(4, tt=TT(dict_tt)) # DUAL algorithm
+    Chopsticks( [AI_Player(ai_algo_neg),AI_Player(ai_algo_step)]).play()
+    dict_tt.print_stats()

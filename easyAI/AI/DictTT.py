@@ -13,13 +13,14 @@ class DictTT:
         self.dict = []
         for i in range(num_buckets):
             self.dict.append((None, None))
-        self.keys = dict()
+        #self.keys = dict()
         self.hash = hash
         if own_hash != None:
             own_hash.modulo = len(self.dict)
             self.hash = own_hash.get_hash
         self.num_collisions = 0
         self.num_calls = 0
+        self.num_lookups = 0
     
     def hash_key(self, key):
         """
@@ -27,7 +28,7 @@ class DictTT:
         an index for the dict.
         """
         self.num_calls += 1
-        return self.hash(key) % len(self.dict)
+        return self.hash(key) & len(self.dict)-1
     
     def get_slot(self, key, default=None):
         """
@@ -44,7 +45,8 @@ class DictTT:
     def get(self, key, default=None):
         """
         Gets the value for the given key, or the default.
-        """        
+        """   
+        self.num_lookups += 1     
         i, k, v = self.get_slot(key, default=default)
         return v
     
@@ -59,10 +61,10 @@ class DictTT:
                 
         self.dict[slot] = (key, value)
      
-        if self.keys.__contains__(key):
-            self.keys[key] = self.keys[key] + 1
-        else:
-            self.keys[key] = 1
+        #if self.keys.__contains__(key):
+        #    self.keys[key] = self.keys[key] + 1
+        #else:
+        #    self.keys[key] = 1
     
     def delete(self, key):
         """
@@ -98,3 +100,9 @@ class DictTT:
     def __contains__(self, key):
         return self.keys.__contains__(key)
         
+    def print_stats(self):
+        print ('-'*10)
+        print ('Statistics of custom dictionary:')
+        print ('Calls of hash: ', self.num_calls)
+        print ('Collisions: ', self.num_collisions)
+        print ('Num lookups: ', self.num_lookups)
